@@ -16,3 +16,11 @@ class Message {
   Message.toSend(this.content, this.disc_id);
   Message.status(this.status, this.id);
 }
+
+class TempMessage extends Message {
+  TempMessage(super.id, super.content, super.receiver, super.disc_id,
+      super.sender, super.time, String? status, dynamic projectDraft);
+  TempMessage.projectDraft(super.id, super.content, super.receiver,
+      super.disc_id, super.sender, super.time, super.projectDraft)
+      : super.projectDraft();
+}

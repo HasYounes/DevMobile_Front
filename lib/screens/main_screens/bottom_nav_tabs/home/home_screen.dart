@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart';
+import 'package:interior_application/config.dart';
 import 'package:interior_application/core/clickable_widget.dart';
 import 'package:interior_application/core/consts.dart';
 import 'package:interior_application/screens/main_screens/bottom_nav_tabs/home/home_tabs/designer_profile_screen.dart';
@@ -204,42 +207,58 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   FutureBuilder(
-                    future: get(Uri.parse("http://192.168.1.4/designers/getAll")),
-                    builder: (context,snap) {
-                      if (snap.connectionState == ConnectionState.done) {
-                         return ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        primary: false,
-                        shrinkWrap: true,
-                        itemCount: 3,
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        itemBuilder: (BuildContext context, int index) {
-                          return DiscoverItemsWidget(
-                            itemImage: "assets/app_images/items1.jpg",
-                            profile: "assets/app_images/person1.png",
-                            title: "Soufiane Harzane",
-                            subTitle:
-                                "I will make the best design your eyes have ever witnessed, while also giving you the best advice on the market.",
-                            value: 3,
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      DesignerProfileScreen(
-                                          name: "Jonathan",
-                                          description: "Lorem ipsum"),
-                                ),
+                      future: get(
+                          Uri.parse(
+                              "http://${Config.urlAuthority}/designers/getAll"),
+                          headers: {"Authorization": Config.jwt}),
+                      builder: (context, snap) {
+                        if (snap.connectionState == ConnectionState.done) {
+                          print(snap.data);
+                          return ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            primary: false,
+                            shrinkWrap: true,
+                            itemCount: jsonDecode(snap.data!.body).length,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            itemBuilder: (BuildContext context, int index) {
+                              return DiscoverItemsWidget(
+                                itemImage: "assets/app_images/items1.jpg",
+                                profile: "assets/app_images/person1.png",
+                                title: jsonDecode(snap.data!.body)[index]
+                                    ["fullname"],
+                                subTitle: jsonDecode(snap.data!.body)[index]
+                                    ["description"],
+                                value: 3,
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          DesignerProfileScreen(
+                                              id: jsonDecode(
+                                                  snap.data!.body)[index]["id"],
+                                              name: jsonDecode(snap.data!.body)[
+                                                  index]["fullname"],
+                                              description: jsonDecode(
+                                                      snap.data!.body)[index]
+                                                  ["description"]),
+                                    ),
+                                  );
+                                },
                               );
                             },
                           );
-                        },
-                      );
-                    
-                      } else {
-                        return const Center(child: CircularProgressIndicator(),);
-                      }
-                     }
-                  ),
+                        } else if (snap.connectionState ==
+                                ConnectionState.waiting ||
+                            snap.hasError) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        } else {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                      }),
                 ],
               ),
             ),

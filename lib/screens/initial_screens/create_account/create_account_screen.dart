@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:http/http.dart';
+import 'package:interior_application/config.dart';
 import 'package:interior_application/core/button_widget.dart';
 import 'package:interior_application/core/consts.dart';
 import 'package:interior_application/core/text_form_field_widget.dart';
@@ -39,7 +40,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
   onButtonPressed() async {
     if (myFormKey.currentState!.validate()) {
-      var uri = Uri.http("192.168.1.4:8080", "/auth/register");
+      var uri = Uri.http(Config.urlAuthority, "/auth/register");
       var response = await post(uri,
           headers: {"Content-type": "application/json"},
           body: jsonEncode({

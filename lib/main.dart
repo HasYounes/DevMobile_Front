@@ -32,7 +32,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     SocketService socket = ref.watch(socketServiceProvider);
     MessagesNotifier message_provider = ref.read(messagesProvider.notifier);
-    //message_provider.initializeMessages();
+    message_provider.initializeMessages();
     socket.init();
     return FutureBuilder(
         future: SharedPreferences.getInstance().then((value) {
@@ -67,7 +67,7 @@ class MyApp extends ConsumerWidget {
               );
             }
           } else {
-            return Center(child: Text("shit happens! "));
+            return Center(child: Text("Error"));
           }
         });
   }

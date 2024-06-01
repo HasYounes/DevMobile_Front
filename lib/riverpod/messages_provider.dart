@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
+import 'package:interior_application/config.dart';
 import 'package:interior_application/socket/Message.dart';
 import 'package:riverpod/riverpod.dart';
 
@@ -45,17 +46,24 @@ class MessagesNotifier extends StateNotifier<Map<int, List<Message>>> {
     return state[discId];
   }
 
+  void cleanTempMessages() {
+    for (var key in state.keys) {
+      if (state[key] == null) break;
+      for (int i = 0; i < state[key]!.length; i++) {
+        if (state[key]![i].runtimeType == TempMessage && state[key] != null) {
+          state[key]!.remove(state[key]![i]);
+        }
+      }
+    }
+  }
+
   Future<Map> initializeMessages() async {
-    final uri = Uri.http('192.168.1.4:8080', '/messages/getAll');
-    var response = await get(uri, headers: {
-      "Authorization":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjAsImZ1bGxuYW1lIjoidGV4dCIsImVtYWlsIjoidGV4dEBrc2pmLmV4dCIsInVzZXJ0eXBlIjoiY2xpZW50IiwiaWF0IjoxNzE3MDA1MTc0LCJleHAiOjE3MTcwOTE1NzR9.32ywF7aPbAdz40KDuUSYigduAXEJJM5G7l-wzacrT_I"
-    });
+    final uri = Uri.http(Config.urlAuthority, '/messages/getAll');
+    var response = await get(uri, headers: {"Authorization": Config.jwt});
     var json = jsonDecode(response.body);
+    cleanTempMessages();
     for (var element in json) {
       if (element["projectRequest"] != null) {
-        print("state before insert ${state}");
-
         addMessage(Message.projectDraft(
             element["id"],
             element["content"],
@@ -65,10 +73,7 @@ class MessagesNotifier extends StateNotifier<Map<int, List<Message>>> {
             DateTime.fromMillisecondsSinceEpoch(
                 int.parse(element["timestamp"])),
             element["projectRequest"]));
-        print("state after insert ${state}");
       } else {
-        print("state before insert ${state}");
-
         addMessage(Message(
             element["id"],
             element["content"],
@@ -77,7 +82,6 @@ class MessagesNotifier extends StateNotifier<Map<int, List<Message>>> {
             element["sender"],
             DateTime.fromMillisecondsSinceEpoch(
                 int.parse(element["timestamp"]))));
-        print("state after insert ${state}");
       }
 
       //sort messages

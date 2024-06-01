@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:interior_application/config.dart';
 import 'package:interior_application/riverpod/messages_provider.dart';
 import 'package:interior_application/socket/Message.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -14,14 +15,11 @@ class SocketService {
       return;
     }
     socket = IO.io(
-        "http://192.168.1.4:8080",
+        "http://${Config.urlAuthority}",
         IO.OptionBuilder()
             .setTransports(['websocket']) // for Flutter or Dart VM
             .enableAutoConnect() // automatically connect
-            .setExtraHeaders({
-              'Authorization':
-                  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MjAsImZ1bGxuYW1lIjoidGV4dCIsImVtYWlsIjoidGV4dEBrc2pmLmV4dCIsInVzZXJ0eXBlIjoiY2xpZW50IiwiaWF0IjoxNzE3MDYxMjg4LCJleHAiOjE3MTcxNDc2ODh9.L1eotG2b0_Z-QiKzovWKzNOBAD7dLSKalwi2kMrMMRU'
-            })
+            .setExtraHeaders({'Authorization': Config.jwt})
             .build());
     socket!.on('connect', (_) {
       print('Socket connected');
@@ -46,14 +44,25 @@ class SocketService {
         } catch (e) {
           epoch = element['timestamp'];
         }
+        if (element['projectRequest'] != null) {
+          addMsg(Message.projectDraft(
+              element['id'],
+              element['content'],
+              element['receiver'],
+              element['disc_id'],
+              element['sender'],
+              DateTime.fromMillisecondsSinceEpoch(epoch),
+              element['projectRequest']));
+        } else {
+          addMsg(Message(
+              element['id'],
+              element['content'],
+              element['receiver'],
+              element['disc_id'],
+              element['sender'],
+              DateTime.fromMillisecondsSinceEpoch(epoch)));
+        }
 
-        addMsg(Message(
-            element['id'],
-            element['content'],
-            element['receiver'],
-            element['disc_id'],
-            element['sender'],
-            DateTime.fromMillisecondsSinceEpoch(epoch)));
         socket!.emit("msg_status", {
           "messages": [
             {"id": element["id"], "status": "received"}
@@ -62,8 +71,6 @@ class SocketService {
       }
       print("Messages processed and added to state");
     });
-
-    print("Socket event listeners registered");
   }
 
   void send(Map msg) {

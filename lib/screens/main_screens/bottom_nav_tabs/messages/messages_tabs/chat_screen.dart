@@ -198,8 +198,8 @@ class ChatScreen extends ConsumerWidget {
                               (value) => int.parse(value.get("id").toString()));
                           ref.read(socketServiceProvider).send(msg);
                           ref.read(messagesProvider.notifier).addMessage(
-                              Message(0, mySearchController.text, 0, disc_id,
-                                  id, DateTime.now()));
+                              TempMessage(0, mySearchController.text, 0,
+                                  disc_id, id, DateTime.now(), null, null));
                         }();
                       },
                       child: Container(

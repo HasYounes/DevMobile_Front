@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart';
 import 'package:interior_application/core/consts.dart';
 import 'package:interior_application/riverpod/messages_provider.dart';
 import 'package:interior_application/socket/Message.dart';
@@ -110,25 +113,40 @@ class MessagesScreen extends ConsumerWidget {
                                     .length;
                               }
 
-                              return MessagesItemsWidget(
-                                disc_id: currentKey,
-                                image: "assets/app_images/person3.png",
-                                isUnread: index == 0 ? true : false,
-                                title: "Johnathan ",
-                                time:
-                                    map[currentKey]![0].time!.toIso8601String(),
-                                subTitle:
-                                    map[map.keys.toList()[index]]![0].content!,
-                                quantity: quantity,
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          ChatScreen(disc_id: currentKey),
-                                    ),
-                                  );
-                                },
-                              );
+                              return FutureBuilder(future: () async {
+                                // var response = await post(
+                                //     Uri.parse(
+                                //         "${Config.urlAuthority}/designers/getbydiscid"),
+                                //     headers: {
+                                //       "Authorization": Config.jwt
+                                //     },body: jsonEncode({
+                                //       "disc_id" : currentKey
+                                //     }));
+                                // var body = jsonDecode(response.body);
+                                // return body["fullname"].toString();
+                                return 1;
+                              }(), builder: (context, snap) {
+                                return MessagesItemsWidget(
+                                  disc_id: currentKey,
+                                  image: "assets/app_images/person3.png",
+                                  isUnread: index == 0 ? true : false,
+                                  title: "designer",
+                                  time: map[currentKey]![0]
+                                      .time!
+                                      .toIso8601String(),
+                                  subTitle: map[map.keys.toList()[index]]![0]
+                                      .content!,
+                                  quantity: quantity,
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            ChatScreen(disc_id: currentKey),
+                                      ),
+                                    );
+                                  },
+                                );
+                              });
                             },
                           ),
                         ],
