@@ -213,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           headers: {"Authorization": Config.jwt}),
                       builder: (context, snap) {
                         if (snap.connectionState == ConnectionState.done) {
-                          print(snap.data);
+                          print(snap.data!.body);
                           return ListView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             primary: false,

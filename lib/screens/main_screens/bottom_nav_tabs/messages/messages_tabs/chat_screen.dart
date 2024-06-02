@@ -7,6 +7,7 @@ import 'package:interior_application/core/consts.dart';
 import 'package:interior_application/riverpod/messages_provider.dart';
 import 'package:interior_application/riverpod/socketserviceprovider.dart';
 import 'package:interior_application/riverpod/user_id_provider.dart';
+import 'package:interior_application/screens/main_screens/bottom_nav_tabs/messages/messages_tabs/scroll_controller.dart';
 import 'package:interior_application/socket/Message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,6 +22,11 @@ class ChatScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var msgs = ref.watch(messagesProvider)[disc_id]!;
     var user_id_from_pref = ref.watch(UserIdNotifierProvider);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 400),
+          ScrollControllerSingleton().scrollToBottom);
+    });
     return Scaffold(
       backgroundColor: whiteColor,
       body: Padding(
@@ -99,6 +105,7 @@ class ChatScreen extends ConsumerWidget {
             const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
+                  controller: ScrollControllerSingleton().scrollController,
                   itemCount: msgs.length,
                   itemBuilder: ((context, index) {
                     var msg = msgs[index];
@@ -200,6 +207,7 @@ class ChatScreen extends ConsumerWidget {
                           ref.read(messagesProvider.notifier).addMessage(
                               TempMessage(0, mySearchController.text, 0,
                                   disc_id, id, DateTime.now(), null, null));
+                          mySearchController.clear();
                         }();
                       },
                       child: Container(

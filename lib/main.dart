@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:interior_application/config.dart';
 import 'package:interior_application/riverpod/messages_provider.dart';
 import 'package:interior_application/riverpod/socketserviceprovider.dart';
 import 'package:interior_application/screens/initial_screens/login/login_screen.dart';
@@ -22,6 +23,7 @@ Future<void> main() async {
       statusBarColor: mainAppColorOne,
     ),
   );
+  await Config.init();
   runApp(const ProviderScope(child: MyApp()));
 }
 
