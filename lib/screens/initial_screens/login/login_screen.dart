@@ -7,6 +7,7 @@ import 'package:interior_application/config.dart';
 import 'package:interior_application/core/button_widget.dart';
 import 'package:interior_application/core/consts.dart';
 import 'package:interior_application/core/text_form_field_widget.dart';
+import 'package:interior_application/riverpod/messages_provider.dart';
 import 'package:interior_application/screens/initial_screens/create_account/create_account_screen.dart';
 import 'package:interior_application/screens/main_screens/drawer/drawer_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -49,6 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
         shared.setString('usertype', jsonDecode(response.body)['usertype']);
         print("usertype  :${shared.getString("usertype")}");
         shared.setString('id', jsonDecode(response.body)['id'].toString());
+        await Config.init();
+
         print("${jsonDecode(response.body)['id']} is id");
         Navigator.of(context).push(
           MaterialPageRoute(

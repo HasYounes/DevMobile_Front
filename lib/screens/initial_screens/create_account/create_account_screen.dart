@@ -54,6 +54,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       if (jsonDecode(response.body)["affected_rows"] > 0) {
         SharedPreferences shared = await SharedPreferences.getInstance();
         shared.setString('jwt', jsonDecode(response.body)['jwt']);
+        shared.setString('usertype', jsonDecode(response.body)['usertype']);
+        shared.setString('id', jsonDecode(response.body)['id'].toString());
+        await Config.init();
         showSnackBar(context, "success");
         Navigator.of(context).push(
           MaterialPageRoute(

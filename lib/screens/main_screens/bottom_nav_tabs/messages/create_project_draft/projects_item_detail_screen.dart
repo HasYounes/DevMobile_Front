@@ -5,10 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:interior_application/config.dart';
 import 'package:interior_application/core/button_widget.dart';
 import 'package:interior_application/core/consts.dart';
+import 'package:interior_application/riverpod/messages_provider.dart';
 import 'package:interior_application/riverpod/socketserviceprovider.dart';
 import 'package:interior_application/screens/main_screens/bottom_nav_tabs/projects/projects_widget.dart';
+import 'package:interior_application/socket/Message.dart';
 import 'task_dialog.dart';
 
 class ProjectDetailsNotifier extends StateNotifier<ProjectDetailsState> {
@@ -318,7 +321,7 @@ class ProjectsItemDetailScreenV2 extends ConsumerWidget {
                 onPressed: () {
                   var sendMessage = ref.read(socketServiceProvider).send;
                   var projectState = ref.read(projectDetailsProvider);
-
+                  var add = ref.read(messagesProvider.notifier).addMessage;
                   sendMessage({
                     "messages": [
                       {
@@ -337,6 +340,34 @@ class ProjectsItemDetailScreenV2 extends ConsumerWidget {
                       }
                     ]
                   });
+                  add(TempMessage.projectDraft(
+                      0,
+                      jsonEncode({
+                        "name": projectState.projectName,
+                        "description": projectState.description,
+                        "tasks": projectState.tasks
+                            .map((e) => {
+                                  "name": e["title"],
+                                  "description": e["subTitle"],
+                                  "price": double.parse(e["amount"] ?? "0"),
+                                })
+                            .toList(),
+                      }),
+                      -9,
+                      disc_id,
+                      Config.userId,
+                      DateTime.now(),
+                      {
+                        "name": projectState.projectName,
+                        "description": projectState.description,
+                        "tasks": projectState.tasks
+                            .map((e) => {
+                                  "name": e["title"],
+                                  "description": e["subTitle"],
+                                  "price": double.parse(e["amount"] ?? "0"),
+                                })
+                            .toList(),
+                      }));
                   Navigator.of(context).pop();
                 },
                 text: "Send",
