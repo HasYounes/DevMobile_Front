@@ -47,6 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
         SharedPreferences shared = await SharedPreferences.getInstance();
         shared.setString('jwt', jsonDecode(response.body)['jwt']);
         shared.setString('usertype', jsonDecode(response.body)['usertype']);
+        print("usertype  :${shared.getString("usertype")}");
         shared.setString('id', jsonDecode(response.body)['id'].toString());
         print("${jsonDecode(response.body)['id']} is id");
         Navigator.of(context).push(

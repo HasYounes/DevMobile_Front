@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart';
@@ -9,7 +8,6 @@ import 'package:interior_application/core/clickable_widget.dart';
 import 'package:interior_application/core/consts.dart';
 import 'package:interior_application/screens/main_screens/main_screen.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-
 import '../../home/home_tabs/designer_profile_screen.dart';
 import '../projects_widget.dart';
 
@@ -23,6 +21,26 @@ class ProjectDetails extends StatefulWidget {
 
 class _ProjectDetailsState extends State<ProjectDetails> {
   double total = 0;
+  List<TasksItemsWidget> selected = [];
+  List<bool> taskSelections = [];
+  bool isAnyTaskSelected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    for (var i = 0; i < widget.project["tasks"].length; i++) {
+      total += double.parse(widget.project["tasks"][i]["price"]);
+      taskSelections.add(false);
+    }
+  }
+
+  void _updateTaskSelection(int index, bool? value) {
+    setState(() {
+      taskSelections[index] = value ?? false;
+      isAnyTaskSelected = taskSelections.contains(true);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.project == null ||
@@ -32,9 +50,7 @@ class _ProjectDetailsState extends State<ProjectDetails> {
         widget.project["id"] == null) {
       return const Center(child: Text("Invalid project draft"));
     }
-    for (var i = 0; i < widget.project["tasks"].length; i++) {
-      total += double.parse(widget.project["tasks"][i]["price"]);
-    }
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: whiteColor,
@@ -81,13 +97,6 @@ class _ProjectDetailsState extends State<ProjectDetails> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    // trailing: SvgPicture.asset(
-                    //   "assets/app_icons/menu2.svg",
-                    //   colorFilter: const ColorFilter.mode(
-                    //     whiteColor,
-                    //     BlendMode.srcIn,
-                    //   ),
-                    // ),
                   ),
                 ),
               ),
@@ -303,18 +312,44 @@ class _ProjectDetailsState extends State<ProjectDetails> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           ListView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: widget.project["tasks"].length,
-                              itemBuilder: (itemBuilder, index) {
-                                return TasksItemsWidget(
-                                    title: widget.project["tasks"][index]
-                                        ["name"],
-                                    subTitle: widget.project["tasks"][index]
-                                        ["description"],
-                                    amount:
-                                        "US\$${widget.project["tasks"][index]["price"]}");
-                              }),
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: widget.project["tasks"].length,
+                            itemBuilder: (itemBuilder, index) {
+                              return Row(
+                                children: <Widget>[
+                                  if (Config.usertype == "designer")
+                                    Checkbox(
+                                        value: taskSelections[index],
+                                        onChanged: (value) {
+                                          _updateTaskSelection(index, value);
+                                          setState(() {
+                                            selected.add(TasksItemsWidget(
+                                              id: widget.project["tasks"][index]
+                                                  ["id"],
+                                              title: widget.project["tasks"]
+                                                  [index]["name"],
+                                              subTitle: widget.project["tasks"]
+                                                  [index]["description"],
+                                              amount:
+                                                  "US\$${widget.project["tasks"][index]["price"]}",
+                                            ));
+                                          });
+                                        }),
+                                  Expanded(
+                                    child: TasksItemsWidget(
+                                      title: widget.project["tasks"][index]
+                                          ["name"],
+                                      subTitle: widget.project["tasks"][index]
+                                          ["description"],
+                                      amount:
+                                          "US\$${widget.project["tasks"][index]["price"]}",
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
@@ -343,9 +378,58 @@ class _ProjectDetailsState extends State<ProjectDetails> {
                               ),
                             ],
                           ),
+                          if (Config.usertype == "designer")
+                            Padding(
+                              padding: const EdgeInsets.only(top: 20.0),
+                              child: ElevatedButton(
+                                onPressed: isAnyTaskSelected
+                                    ? () async {
+                                        var payload = {
+                                          "project": widget.project["id"],
+                                          "tasks": selected
+                                              .map((e) => {"id": e.id})
+                                              .toList()
+                                        };
+                                        post(
+                                                Uri.http(Config.urlAuthority,
+                                                    '/tasks/update'),
+                                                headers: {
+                                                  "Content-type":
+                                                      "application/json",
+                                                  "Authorization": Config.jwt
+                                                },
+                                                body: jsonEncode(payload))
+                                            .then((value) {
+                                          print(value.body);
+                                          if (jsonDecode(
+                                                  value.body)["status"] ==
+                                              true) {
+                                            Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        MainScreen(
+                                                          scaffoldKey:
+                                                              GlobalKey(),
+                                                          firstOpenedIndex: 1,
+                                                        )));
+                                          }
+                                        });
+                                      }
+                                    : null,
+                                style: ElevatedButton.styleFrom(
+                                  // primary: mainAppColorOne,
+                                  // onPrimary: whiteColor,
+                                  textStyle: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                child: const Text("Update"),
+                              ),
+                            ),
                         ],
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),

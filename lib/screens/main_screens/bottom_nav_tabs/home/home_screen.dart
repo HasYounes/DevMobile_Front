@@ -223,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             itemBuilder: (BuildContext context, int index) {
                               return DiscoverItemsWidget(
                                 itemImage: "assets/app_images/items1.jpg",
-                                profile: "assets/app_images/person1.png",
+                                profile: "assets/app_images/person3.png",
                                 title: jsonDecode(snap.data!.body)[index]
                                     ["fullname"],
                                 subTitle: jsonDecode(snap.data!.body)[index]

@@ -93,10 +93,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         floatingActionButton: selectedIndex == 1 || selectedIndex == 2
             ? FloatingActionButton(
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => ProjectsItemDetailScreenV2()));
-                },
+                onPressed: () {},
                 backgroundColor: mainAppColorOne,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(100)),

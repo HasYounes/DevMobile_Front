@@ -31,12 +31,12 @@ class _ProjectsItemDetailScreenState extends State<ProjectsItemDetailScreen> {
     if (widget.projectDraft == null ||
         widget.projectDraft["name"] == null ||
         widget.projectDraft["description"] == null ||
-        widget.projectDraft["tasks"] == null ||
-        widget.projectDraft["id"] == null) {
+        widget.projectDraft["tasks"] == null) {
       return const Center(child: Text("Invalid project draft"));
     }
     for (var i = 0; i < widget.projectDraft["tasks"].length; i++) {
-      total += double.parse(widget.projectDraft["tasks"][i]["price"]);
+      var price = widget.projectDraft["tasks"][i]["price"];
+      total += price.runtimeType == double ? price : double.parse(price);
     }
     return SafeArea(
       child: Scaffold(

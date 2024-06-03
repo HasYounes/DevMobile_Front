@@ -134,9 +134,11 @@ class LinearWidget extends StatelessWidget {
 //tasks items widget...
 class TasksItemsWidget extends StatelessWidget {
   final String title, subTitle, amount;
+  final int? id;
 
   const TasksItemsWidget({
     super.key,
+    this.id,
     required this.title,
     required this.subTitle,
     required this.amount,

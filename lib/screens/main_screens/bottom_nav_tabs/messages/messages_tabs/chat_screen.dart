@@ -7,6 +7,7 @@ import 'package:interior_application/core/consts.dart';
 import 'package:interior_application/riverpod/messages_provider.dart';
 import 'package:interior_application/riverpod/socketserviceprovider.dart';
 import 'package:interior_application/riverpod/user_id_provider.dart';
+import 'package:interior_application/screens/main_screens/bottom_nav_tabs/messages/create_project_draft/projects_item_detail_screen.dart';
 import 'package:interior_application/screens/main_screens/bottom_nav_tabs/messages/messages_tabs/scroll_controller.dart';
 import 'package:interior_application/socket/Message.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -123,7 +124,9 @@ class ChatScreen extends ConsumerWidget {
                       isShowProfileClient: true,
                       isShowProjectDraft: isShowDraft,
                       projectDraft: isShowDraft ? msg.projectDraft : null,
-                      image: "assets/app_images/person1.png",
+                      image: msg.sender == user_id_from_pref
+                          ? "assets/app_images/person1.png"
+                          : "assets/app_images/person3.png",
                     );
                   })),
             ),
@@ -224,6 +227,34 @@ class ChatScreen extends ConsumerWidget {
                             height: 20,
                             width: 20,
                             "assets/app_images/sent.png",
+                          ),
+                        ),
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        () async {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => ProjectsItemDetailScreenV2(
+                                    disc_id: disc_id,
+                                  )));
+                        }();
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Container(
+                          height: 30,
+                          width: 30,
+                          decoration: const BoxDecoration(
+                            color: mainAppColorOne,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              height: 20,
+                              width: 20,
+                              "assets/app_icons/edit.svg",
+                            ),
                           ),
                         ),
                       ),
