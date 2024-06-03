@@ -115,12 +115,14 @@ class ChatScreen extends ConsumerWidget {
                     }
 
                     return MessageWidget(
+                      designer: msg.sender!,
                       isSent: msg.sender == user_id_from_pref ? true : false,
                       message: msgs[index].content!,
                       time:
                           "${msgs[index].time!.hour} : ${msgs[index].time!.minute}",
                       isShowProfileClient: true,
                       isShowProjectDraft: isShowDraft,
+                      projectDraft: isShowDraft ? msg.projectDraft : null,
                       image: "assets/app_images/person1.png",
                     );
                   })),

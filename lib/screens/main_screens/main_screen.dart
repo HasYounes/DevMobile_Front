@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:interior_application/core/consts.dart';
+import 'package:interior_application/screens/main_screens/bottom_nav_tabs/messages/create_project_draft/projects_item_detail_screen.dart';
 
 import 'bottom_nav_tabs/home/home_screen.dart';
 import 'bottom_nav_tabs/messages/messages_screen.dart';
@@ -92,7 +93,10 @@ class _MainScreenState extends State<MainScreen> {
         ),
         floatingActionButton: selectedIndex == 1 || selectedIndex == 2
             ? FloatingActionButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => ProjectsItemDetailScreenV2()));
+                },
                 backgroundColor: mainAppColorOne,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(100)),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:interior_application/core/button_widget.dart';
 import 'package:interior_application/core/clickable_widget.dart';
 import 'package:interior_application/core/consts.dart';
+import 'package:interior_application/screens/main_screens/bottom_nav_tabs/projects/projects_tabs/projects_item_detail_screen.dart';
 
 //messages items widget...
 class MessagesItemsWidget extends StatelessWidget {
@@ -124,6 +125,8 @@ class MessagesItemsWidget extends StatelessWidget {
 //message widget...
 class MessageWidget extends StatelessWidget {
   final String message, time, image;
+  final dynamic projectDraft;
+  final int designer;
   final bool isSent,
       isShoTime,
       isShowProfileClient,
@@ -132,9 +135,11 @@ class MessageWidget extends StatelessWidget {
 
   const MessageWidget({
     super.key,
+    required this.designer,
     required this.message,
     required this.time,
     required this.isSent,
+    this.projectDraft,
     this.isShoTime = true,
     this.isShowProfileClient = true,
     this.isShowProfileSent = true,
@@ -222,7 +227,15 @@ class MessageWidget extends StatelessWidget {
                           width: 100,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          onPressed: () {},
+                          onPressed: () {
+                            if (projectDraft != null) {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (value) => ProjectsItemDetailScreen(
+                                        designer: designer,
+                                        projectDraft: projectDraft,
+                                      )));
+                            }
+                          },
                         )
                       ],
                     ),

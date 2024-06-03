@@ -13,30 +13,27 @@ import 'package:percent_indicator/percent_indicator.dart';
 import '../../home/home_tabs/designer_profile_screen.dart';
 import '../projects_widget.dart';
 
-class ProjectsItemDetailScreen extends StatefulWidget {
-  const ProjectsItemDetailScreen(
-      {super.key, required this.designer, required this.projectDraft});
-  final dynamic projectDraft;
-  final int designer;
+class ProjectDetails extends StatefulWidget {
+  const ProjectDetails({super.key, required this.project});
+  final dynamic project;
 
   @override
-  State<ProjectsItemDetailScreen> createState() =>
-      _ProjectsItemDetailScreenState();
+  State<ProjectDetails> createState() => _ProjectDetailsState();
 }
 
-class _ProjectsItemDetailScreenState extends State<ProjectsItemDetailScreen> {
+class _ProjectDetailsState extends State<ProjectDetails> {
   double total = 0;
   @override
   Widget build(BuildContext context) {
-    if (widget.projectDraft == null ||
-        widget.projectDraft["name"] == null ||
-        widget.projectDraft["description"] == null ||
-        widget.projectDraft["tasks"] == null ||
-        widget.projectDraft["id"] == null) {
+    if (widget.project == null ||
+        widget.project["name"] == null ||
+        widget.project["description"] == null ||
+        widget.project["tasks"] == null ||
+        widget.project["id"] == null) {
       return const Center(child: Text("Invalid project draft"));
     }
-    for (var i = 0; i < widget.projectDraft["tasks"].length; i++) {
-      total += double.parse(widget.projectDraft["tasks"][i]["price"]);
+    for (var i = 0; i < widget.project["tasks"].length; i++) {
+      total += double.parse(widget.project["tasks"][i]["price"]);
     }
     return SafeArea(
       child: Scaffold(
@@ -75,7 +72,7 @@ class _ProjectsItemDetailScreenState extends State<ProjectsItemDetailScreen> {
                       ),
                     ),
                     title: Text(
-                      widget.projectDraft["name"].toString(),
+                      widget.project["name"].toString(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -155,12 +152,12 @@ class _ProjectsItemDetailScreenState extends State<ProjectsItemDetailScreen> {
                             ),
                             trailing: InkWellWidget(
                               onTap: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        DesignerProfileScreen(),
-                                  ),
-                                );
+                                // Navigator.of(context).push(
+                                //   MaterialPageRoute(
+                                //     builder: (BuildContext context) =>
+                                //         DesignerProfileScreen(),
+                                //   ),
+                                // );
                               },
                               child: Container(
                                 height: 42,
@@ -200,13 +197,15 @@ class _ProjectsItemDetailScreenState extends State<ProjectsItemDetailScreen> {
                               padding: EdgeInsets.zero,
                               lineHeight: 18,
                               barRadius: const Radius.circular(10),
-                              percent: 1,
-                              center: const Text(
-                                "pending ..",
+                              percent:
+                                  double.parse(widget.project["progress"]) /
+                                      100,
+                              center: Text(
+                                "${double.parse(widget.project['progress'])}%",
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: whiteColor,
+                                style: const TextStyle(
+                                  color: blackColor,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -255,7 +254,7 @@ class _ProjectsItemDetailScreenState extends State<ProjectsItemDetailScreen> {
                             ),
                             child: RichText(
                               text: TextSpan(
-                                text: widget.projectDraft["description"],
+                                text: widget.project["description"],
                                 style: const TextStyle(
                                   height: 2,
                                   color: blackColor,
@@ -306,15 +305,15 @@ class _ProjectsItemDetailScreenState extends State<ProjectsItemDetailScreen> {
                           ListView.builder(
                               physics: const NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
-                              itemCount: widget.projectDraft["tasks"].length,
+                              itemCount: widget.project["tasks"].length,
                               itemBuilder: (itemBuilder, index) {
                                 return TasksItemsWidget(
-                                    title: widget.projectDraft["tasks"][index]
+                                    title: widget.project["tasks"][index]
                                         ["name"],
-                                    subTitle: widget.projectDraft["tasks"]
-                                        [index]["description"],
+                                    subTitle: widget.project["tasks"][index]
+                                        ["description"],
                                     amount:
-                                        "US\$${widget.projectDraft["tasks"][index]["price"]}");
+                                        "US\$${widget.project["tasks"][index]["price"]}");
                               }),
                           Row(
                             mainAxisSize: MainAxisSize.min,
@@ -343,43 +342,6 @@ class _ProjectsItemDetailScreenState extends State<ProjectsItemDetailScreen> {
                                 ),
                               ),
                             ],
-                          ),
-                          const SizedBox(height: 30),
-                          ButtonWidget(
-                            text: "Validate",
-                            height: 36,
-                            width: 120,
-                            fontSize: 16,
-                            elevation: 8,
-                            fontWeight: FontWeight.w600,
-                            onPressed: () {
-                              () async {
-                                var response = await post(
-                                    Uri.parse(
-                                        'http://${Config.urlAuthority}/projects/create'),
-                                    headers: {
-                                      "Content-type": "application/json",
-                                      "Authorization": Config.jwt
-                                    },
-                                    body: jsonEncode({
-                                      "name": widget.projectDraft["name"],
-                                      "description":
-                                          widget.projectDraft["description"],
-                                      "designer": widget.designer,
-                                      "tasks": widget.projectDraft["tasks"]
-                                    }));
-                                if (jsonDecode(response.body)["status"] ==
-                                    true) {
-                                  //Navigator.pop(context);
-                                  Navigator.of(context).push(MaterialPageRoute(
-                                      builder: (context) => MainScreen(
-                                            scaffoldKey: GlobalKey(),
-                                            firstOpenedIndex: 1,
-                                          )));
-                                }
-                                print(jsonDecode(response.body)["status"]);
-                              }();
-                            },
                           ),
                         ],
                       ),

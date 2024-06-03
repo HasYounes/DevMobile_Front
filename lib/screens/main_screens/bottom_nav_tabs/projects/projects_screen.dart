@@ -1,6 +1,12 @@
+import 'dart:convert';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart';
+import 'package:interior_application/config.dart';
 import 'package:interior_application/core/consts.dart';
+import 'package:interior_application/screens/main_screens/bottom_nav_tabs/projects/projects_tabs/project_screen.dart';
 
 import '../home/home_widget.dart';
 import 'projects_tabs/projects_item_detail_screen.dart';
@@ -107,29 +113,61 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
                       ],
                     ),
                   ),
-                  ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    primary: false,
-                    shrinkWrap: true,
-                    itemCount: 10,
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    itemBuilder: (BuildContext context, int index) {
-                      return ProjectItemsWidget(
-                        image: "assets/app_images/items2.jpg",
-                        title: "Project 1",
-                        subTitle: "Designer 2",
-                        value: index == 2 ? 1 : 0.7,
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  const ProjectsItemDetailScreen(),
-                            ),
+                  FutureBuilder(
+                      future: get(
+                          Uri.parse(
+                              "http://${Config.urlAuthority}/projects/getAll"),
+                          headers: {"Authorization": Config.jwt}),
+                      builder: (context, snap) {
+                        if (snap.hasData) {
+                          if (jsonDecode(snap.data!.body)["projects"] ==
+                              false) {
+                            return const Padding(
+                              padding: EdgeInsets.only(top: 260.0),
+                              child: Center(child: Text("Nothing to see here")),
+                            );
+                          }
+                          return ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            primary: false,
+                            shrinkWrap: true,
+                            itemCount:
+                                jsonDecode(snap.data!.body)["projects"].length,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            itemBuilder: (BuildContext context, int index) {
+                              if (snap.hasData) {
+                                return ProjectItemsWidget(
+                                  image: "assets/app_images/items2.jpg",
+                                  title: jsonDecode(snap.data!.body)["projects"]
+                                      [index]["name"],
+                                  subTitle:
+                                      jsonDecode(snap.data!.body)["projects"]
+                                          [index]["description"],
+                                  value: double.parse(jsonDecode(
+                                              snap.data!.body)["projects"]
+                                          [index]["progress"]) /
+                                      100,
+                                  onTap: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            ProjectDetails(
+                                                project:
+                                                    jsonDecode(snap.data!.body)[
+                                                        "projects"][index]),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+                            },
                           );
-                        },
-                      );
-                    },
-                  ),
+                        } else {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                      }),
                 ],
               ),
             ),
